@@ -21,14 +21,20 @@ jobs:
         with:
           java-version: '11'
 
-      - name: Build with Maven
-        run: mvn clean install
+      - name: Run chmod to make gradlew executable
+        run: chmod +x ./gradlew
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
+      - name: Build with Gradle
+        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+        with:
+          arguments: build
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
         with:
           name: java-app
-          path: '${{ github.workspace }}/target/*.jar'
+          path: '${{ github.workspace }}/build/libs'
 
   deploy:
     runs-on: ubuntu-latest
@@ -47,7 +53,7 @@ jobs:
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: 'vslavasdev'
+          app-name: 'vslavasdev/ifb'
           slot-name: 'ifb'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_62B8BBEFF7F24B04AA98C6A6670D141A }}
-          package: '*.jar'
+          package: 'demo22-0.0.1-SNAPSHOT.jar'
